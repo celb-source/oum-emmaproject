@@ -64,9 +64,12 @@ if 'reponse_affichee' not in st.session_state:
 
 # --- BARRE LATÉRALE (SIDEBAR) ---
 with st.sidebar:
-    # IDÉE : Remplacez cette URL par le nom de votre fichier image local (ex: st.image("caricature_oumaima.jpg"))
-    # Pour l'instant, j'utilise une image générique pour que le code fonctionne immédiatement.
-    st.image("https://cdn-icons-png.flaticon.com/512/194/194938.png", width=150)
+    # MISE À JOUR : Chargement de ton image logo.jpg
+    try:
+        st.image("logo.jpg", width=150)
+    except:
+        st.warning("Image 'logo.jpg' introuvable. Vérifiez qu'elle est dans le dossier.")
+    
     st.caption("Objectif : Devenir Française !")
 
     st.title(f"👋 Bonjour {data.info_candidat['nom']}")
@@ -138,7 +141,7 @@ if q_actuelle['type'] == "QCM":
     # Création d'une clé unique pour le widget radio pour éviter les conflits
     widget_key = f"radio_{st.session_state.jour_selectionne}_{index_actuel}"
     
-    # Affichage des options (mélangées pour plus de challenge si on voulait, mais ici fixes)
+    # Affichage des options
     choix_utilisateur = st.radio("Options :", q_actuelle['options'], key=widget_key, label_visibility="collapsed")
     
     # Bouton de validation
