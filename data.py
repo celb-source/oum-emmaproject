@@ -4,7 +4,7 @@
 # Mise à jour : Février 2026 (Gouvernement Lecornu)
 
 info_candidat = {
-    "nom": "Oumaima AKKAD",
+    "nom": "Oumaï à moi ",
     "specialite": "Mode & Arts",
     "contexte": "Février 2026",
     "objectif": "Naturalisation par Décret"
