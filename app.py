@@ -1,207 +1,291 @@
 import streamlit as st
 import data
+import random
+import time
 
-# Configuration de la page principale
+# --- 1. CONFIGURATION DE LA PAGE (L'AMBIANCE) ---
 st.set_page_config(
-    page_title="Mission Naturalisation Oumaima 2026",
-    page_icon="🇫🇷",
+    page_title="Mission Naturalisation : Édition Oumaima",
+    page_icon="🐓",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- CSS PERSONNALISÉ POUR UN LOOK MODERNE ---
+# --- 2. CSS "FRENCH TOUCH" (LE STYLE) ---
 st.markdown("""
 <style>
+    /* FOND GÉNÉRAL */
+    .stApp {
+        background: linear-gradient(to right, #f0f8ff, #ffffff);
+    }
+    
+    /* SIDEBAR (BLEU FRANCE) */
     [data-testid="stSidebar"] {
-        background-color: #f8f9fa;
+        background-color: #f0f4f8;
+        border-right: 5px solid #002654;
     }
+    
+    /* TITRES & TEXTES */
+    h1 { 
+        color: #002654; 
+        font-family: 'Garamond', serif; 
+        text-align: center;
+        text-shadow: 2px 2px 0px #eee;
+    }
+    h2, h3 { color: #ED2939; font-family: 'Arial', sans-serif; }
+    
+    /* BOITE QUESTION (CARTE TRICOLORE) */
+    .question-card {
+        background-color: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        border-top: 10px solid #002654;   /* Bleu */
+        border-bottom: 10px solid #ED2939; /* Rouge */
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+    }
+    .question-card:hover {
+        transform: scale(1.02);
+    }
+
+    /* BOUTONS STYLISÉS */
     .stButton button {
-        width: 100%;
-        border-radius: 10px;
+        background: linear-gradient(45deg, #002654, #0055A4);
+        color: white;
+        border-radius: 50px;
+        height: 55px;
+        font-size: 18px;
         font-weight: bold;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
-    .stProgress > div > div > div > div {
-        background-color: #002654; /* Bleu France */
+    .stButton button:hover {
+        background: linear-gradient(45deg, #ED2939, #ff5e6c);
+        color: white;
     }
-    h1, h2, h3 {
-        color: #002654;
-    }
-    .highlight-box {
+
+    /* MESSAGES DE RÉPONSE */
+    .reponse-box {
         padding: 20px;
         border-radius: 15px;
-        background-color: #ffffff;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        border-left: 5px solid #ED2939; /* Rouge France */
+        margin-top: 20px;
+        font-size: 1.2em;
+        animation: fadeIn 0.5s;
     }
-    .correct-answer {
-        background-color: #d4edda;
-        color: #155724;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #c3e6cb;
-        margin-top: 10px;
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
     }
-    .wrong-answer {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #f5c6cb;
-        margin-top: 10px;
+    
+    /* FOOTER */
+    .footer-bg {
+        text-align: center;
+        padding: 20px;
+        color: grey;
+        font-family: 'Courier New', monospace;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- GESTION DES ÉTATS (SESSION STATE) ---
-# Initialisation des variables pour suivre la progression
-if 'jour_selectionne' not in st.session_state:
-    st.session_state.jour_selectionne = "J-7" # On commence au jour 7
-if 'index_question_par_jour' not in st.session_state:
-    st.session_state.index_question_par_jour = {jour: 0 for jour in data.programme_7_jours}
-if 'reponse_affichee' not in st.session_state:
-    st.session_state.reponse_affichee = False
+# --- 3. FONCTIONS UTILITAIRES (LA LOGIQUE DRÔLE) ---
 
-# --- BARRE LATÉRALE (SIDEBAR) ---
+def get_french_reaction(is_correct):
+    """Renvoie une réaction typiquement française aléatoire"""
+    if is_correct:
+        return random.choice([
+            "🇫🇷 Cocorico ! C'est gagné !",
+            "🥐 Magnifique ! Aussi bon qu'un croissant chaud.",
+            "🍷 Excellent ! On ouvre le Champagne ?",
+            "🥖 C'est un sans-faute, chef !",
+            "✨ Oumaima, tu es plus française que Louis XIV !"
+        ])
+    else:
+        return random.choice([
+            "🧀 Sacré bleu ! C'est raté...",
+            "🐓 Aïe aïe aïe... Napoléon se retourne dans sa tombe.",
+            "🍷 C'est pas grave, reprends un peu de fromage.",
+            "🤔 Bof bof... L'agent de la préfecture ne va pas aimer.",
+            "🥖 Encore un effort pour la République !"
+        ])
+
+def get_icon_for_category(cat):
+    """Associe une icône cliché à la catégorie"""
+    if "Histoire" in cat: return "🏰"
+    if "Géo" in cat: return "🗺️"
+    if "Mode" in cat: return "👠"
+    if "Gastronomie" in cat: return "🧀"
+    if "Politique" in cat: return "⚖️"
+    if "Symbole" in cat: return "🐓"
+    if "Laïcité" in cat: return "🤝"
+    return "🇫🇷"
+
+# --- 4. GESTION DE L'ÉTAT (MÉMOIRE) ---
+if 'mode_selectionne' not in st.session_state:
+    st.session_state.mode_selectionne = "J-7"
+if 'index_q' not in st.session_state:
+    st.session_state.index_q = 0
+if 'reponse_visible' not in st.session_state:
+    st.session_state.reponse_visible = False
+
+# --- 5. SIDEBAR (LE MENU) ---
 with st.sidebar:
-    # MISE À JOUR : Chargement de ton image logo.jpg
+    # Logo
     try:
-        st.image("logo.jpg", width=150)
+        st.image("logo.jpg", width=200)
     except:
-        st.warning("Image 'logo.jpg' introuvable. Vérifiez qu'elle est dans le dossier.")
+        st.header("📸 [Logo Oumaima]")
     
-    st.caption("Objectif : Devenir Française !")
-
-    st.title(f"👋 Bonjour {data.info_candidat['nom']}")
-    st.info(f"🎯 Contexte : {data.info_candidat['contexte']}")
-    st.success(f"✨ Spécialité incluse : {data.info_candidat['specialite']}")
-
+    st.markdown("<h2 style='text-align: center; color:#002654;'>Objectif Décret</h2>", unsafe_allow_html=True)
+    
+    # Badge Profil
+    st.info(f"👤 **Candidat :** {data.info_candidat['nom']}")
+    st.warning(f"🧵 **Atout Majeur :** {data.info_candidat['specialite']}")
+    
     st.markdown("---")
-    st.header("🗓️ Planning d'Entraînement")
     
-    # Sélecteur de jour
-    jours_dispo = list(data.programme_7_jours.keys())
-    choix_jour = st.radio("Choisir votre mission du jour :", jours_dispo, index=jours_dispo.index(st.session_state.jour_selectionne))
-
-    # Si on change de jour, on reset l'état d'affichage de la réponse
-    if choix_jour != st.session_state.jour_selectionne:
-        st.session_state.jour_selectionne = choix_jour
-        st.session_state.reponse_affichee = False
+    # Sélecteur de mode
+    st.markdown("### 📅 Planning de Révision")
+    
+    options = list(data.programme_7_jours.keys()) + ["🏆 CHALLENGE EXPERT"]
+    
+    # Gestion de l'index pour éviter les bugs
+    try:
+        idx = options.index(st.session_state.mode_selectionne)
+    except:
+        idx = 0
+        
+    choix = st.radio("Mission du jour :", options, index=idx)
+    
+    if choix != st.session_state.mode_selectionne:
+        st.session_state.mode_selectionne = choix
+        st.session_state.index_q = 0
+        st.session_state.reponse_visible = False
         st.rerun()
 
-    # Bouton Reset global
-    if st.button("🔄 Recommencer la journée à zéro"):
-        st.session_state.index_question_par_jour[st.session_state.jour_selectionne] = 0
-        st.session_state.reponse_affichee = False
-        st.rerun()
-
     st.markdown("---")
-    # Aide-mémoire permanent dans la sidebar
-    with st.expander("📌 Pense-bête 2026"):
-        st.markdown("""
-        * **PM :** Sébastien Lecornu
-        * **Intérieur :** Laurent Nuñez
-        * **14 Juillet :** Prise de la Bastille (1789)
-        * **Devise :** Liberté, Égalité, Fraternité
-        * **Laïcité :** Neutralité de l'État, liberté de croire ou non.
-        * **LVMH :** Bernard Arnault
-        """)
+    st.markdown("### 🥖 Pense-Bête Express")
+    st.markdown("""
+    - **PM :** Sébastien Lecornu
+    - **14 Juillet :** Bastille 🏰
+    - **Devise :** L.E.F.
+    """)
 
-# --- LOGIQUE PRINCIPALE ---
-# Récupération des données du jour choisi
-questions_du_jour = data.programme_7_jours[st.session_state.jour_selectionne]
-total_questions = len(questions_du_jour)
-index_actuel = st.session_state.index_question_par_jour[st.session_state.jour_selectionne]
-q_actuelle = questions_du_jour[index_actuel]
+# --- 6. PAGE PRINCIPALE ---
 
-# --- AFFICHAGE DE LA PAGE PRINCIPALE ---
-col1, col2 = st.columns([3, 1])
-with col1:
-    st.title(f"🚀 Mission {st.session_state.jour_selectionne}")
-with col2:
-    st.metric(label="Objectif Jour", value=f"{total_questions} Questions")
+# Chargement des questions
+est_expert = (st.session_state.mode_selectionne == "🏆 CHALLENGE EXPERT")
+if est_expert:
+    questions = data.questions_experts
+    titre = "🤯 MODE EXPERT : L'ÉLITE DE LA NATION"
+    sous_titre = "Attention, questions pièges niveau Bac+5 !"
+else:
+    questions = data.programme_7_jours[st.session_state.mode_selectionne]
+    titre = f"🚀 MISSION {st.session_state.mode_selectionne}"
+    sous_titre = "En route vers la naturalisation..."
+
+# Sécurité index
+if st.session_state.index_q >= len(questions):
+    st.session_state.index_q = 0
+
+q_data = questions[st.session_state.index_q]
+cat_icon = get_icon_for_category(q_data['cat'])
+
+# Affichage Titre
+col_logo_1, col_logo_2, col_logo_3 = st.columns([1, 4, 1])
+with col_logo_1:
+    st.markdown("# 🇫🇷")
+with col_logo_2:
+    st.markdown(f"<h1>{titre}</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center; color:gray;'>{sous_titre}</p>", unsafe_allow_html=True)
+with col_logo_3:
+    st.markdown("# 🐓")
 
 # Barre de progression
-progression = (index_actuel + 1) / total_questions
-st.progress(progression, text=f"Progression : Question {index_actuel + 1} sur {total_questions}")
+progression = (st.session_state.index_q + 1) / len(questions)
+st.progress(progression)
 
-# --- BOÎTE DE QUESTION ---
+# --- CARTE DE LA QUESTION ---
 st.markdown(f"""
-<div class="highlight-box">
-    <p style="color: grey; margin-bottom: 5px;">🏷️ Thème : {q_actuelle['cat']}</p>
-    <h2>❓ {q_actuelle['q']}</h2>
+<div class="question-card">
+    <p style="color:#888; text-transform:uppercase; letter-spacing:2px; font-size:0.8em;">
+        {cat_icon} Thème : {q_data['cat']} {cat_icon}
+    </p>
+    <h2 style="color:#002654; font-size:1.8em; margin-top:10px;">{q_data['q']}</h2>
 </div>
 """, unsafe_allow_html=True)
 
-# --- ZONE DE RÉPONSE ---
-# Cas 1 : C'est un QCM
-if q_actuelle['type'] == "QCM":
-    st.subheader("👉 Sélectionnez la bonne réponse :")
-    
-    # Création d'une clé unique pour le widget radio pour éviter les conflits
-    widget_key = f"radio_{st.session_state.jour_selectionne}_{index_actuel}"
-    
-    # Affichage des options
-    choix_utilisateur = st.radio("Options :", q_actuelle['options'], key=widget_key, label_visibility="collapsed")
-    
-    # Bouton de validation
-    if st.button("Valider ma réponse 🎯", type="primary", disabled=st.session_state.reponse_affichee):
-        st.session_state.reponse_affichee = True
-        st.rerun()
+# --- ZONE D'INTERACTION ---
+col_main_1, col_main_2, col_main_3 = st.columns([1, 2, 1])
 
-    # Affichage du résultat après validation
-    if st.session_state.reponse_affichee:
-        if choix_utilisateur == q_actuelle['correct']:
-            st.markdown(f"""<div class="correct-answer">✅ <b>BRAVO !</b> C'est une excellente réponse : {q_actuelle['correct']}</div>""", unsafe_allow_html=True)
-            st.balloons()
-        else:
-            st.markdown(f"""<div class="wrong-answer">❌ <b>Aïe, erreur.</b><br>La bonne réponse était : <b>{q_actuelle['correct']}</b></div>""", unsafe_allow_html=True)
+with col_main_2:
+    # ---------------- CAS QCM ----------------
+    if q_data['type'] == "QCM":
+        st.write("👉 **Votre réponse finale ?**")
+        
+        # Widget Radio avec clé unique
+        key_radio = f"qcm_{st.session_state.mode_selectionne}_{st.session_state.index_q}"
+        user_response = st.radio("Options", q_data['options'], key=key_radio, label_visibility="collapsed")
+        
+        if st.button("Valider ma réponse 🥖", disabled=st.session_state.reponse_visible):
+            st.session_state.reponse_visible = True
+            st.rerun()
+            
+        # Résultat QCM
+        if st.session_state.reponse_visible:
+            if user_response == q_data['correct']:
+                st.markdown(f"""
+                <div class="reponse-box" style="background-color:#d4edda; border:2px solid #28a745; color:#155724;">
+                    <h3>✅ {get_french_reaction(True)}</h3>
+                    <p>Bonne réponse : <b>{q_data['correct']}</b></p>
+                </div>
+                """, unsafe_allow_html=True)
+                st.balloons()
+            else:
+                st.markdown(f"""
+                <div class="reponse-box" style="background-color:#f8d7da; border:2px solid #dc3545; color:#721c24;">
+                    <h3>❌ {get_french_reaction(False)}</h3>
+                    <p>La bonne réponse était : <b>{q_data['correct']}</b></p>
+                </div>
+                """, unsafe_allow_html=True)
 
-# Cas 2 : C'est une question Orale ou Flash
-else:
-    st.subheader("🗣️ Entraînement Oral")
-    st.info("Répondez à voix haute, de manière claire et convaincante, comme devant l'agent.")
-    
-    # Bouton pour révéler la réponse
-    if st.button("👀 Voir la réponse attendue", disabled=st.session_state.reponse_affichee):
-        st.session_state.reponse_affichee = True
-        st.rerun()
+    # ---------------- CAS ORAL / FLASH ----------------
+    else:
+        st.info("🗣️ Entraînement Oral : Répondez à voix haute !")
+        
+        if st.button("👀 Voir la réponse", disabled=st.session_state.reponse_visible):
+            st.session_state.reponse_visible = True
+            st.rerun()
+            
+        if st.session_state.reponse_visible:
+            st.markdown(f"""
+            <div class="reponse-box" style="background-color:#fff3cd; border:2px solid #ffc107; color:#856404;">
+                <h3>💡 La Réponse de l'Expert :</h3>
+                <p style="font-size:1.1em;">{q_data['r']}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-    # Affichage de la réponse
-    if st.session_state.reponse_affichee:
-         st.markdown(f"""<div class="correct-answer">✅ <b>Réponse type :</b><br>{q_actuelle['r']}</div>""", unsafe_allow_html=True)
+# --- NAVIGATION ---
+st.markdown("<br>", unsafe_allow_html=True)
 
-# --- BOUTON QUESTION SUIVANTE ---
-st.markdown("---")
-col_next_1, col_next_2 = st.columns([4, 1])
-
-with col_next_2:
-    # Le bouton n'apparaît que si la réponse est affichée
-    if st.session_state.reponse_affichee:
-        # Si ce n'est pas la dernière question
-        if index_actuel < total_questions - 1:
-            if st.button("Question Suivante ➡️", type="primary"):
-                # On incrémente l'index pour ce jour
-                st.session_state.index_question_par_jour[st.session_state.jour_selectionne] += 1
-                # On cache la réponse pour la prochaine question
-                st.session_state.reponse_affichee = False
+if st.session_state.reponse_visible:
+    col_nav_1, col_nav_2, col_nav_3 = st.columns([1, 2, 1])
+    with col_nav_2:
+        if st.session_state.index_q < len(questions) - 1:
+            if st.button("Question Suivante ➡️"):
+                st.session_state.index_q += 1
+                st.session_state.reponse_visible = False
                 st.rerun()
-        # Si c'est la dernière question
         else:
-            st.success("🎉 FÉLICITATIONS ! Vous avez terminé la session d'aujourd'hui.")
-            st.write("Passez au jour suivant via le menu latéral.")
+            st.success("🎉 BRAVO CITOYENNE ! SESSION TERMINÉE !")
+            st.snow()
 
-# --- FOOTER (PIED DE PAGE) ---
-st.markdown("<br><br><br>", unsafe_allow_html=True) # Espace
+# --- FOOTER ---
 st.markdown("---")
-st.markdown(
-    """
-    <div style='text-align: center; color: #555555; font-family: sans-serif;'>
-        <p>🇫🇷 Prép'Naturalisation 2026 - Objectif Décret pour Oumaima AKKAD</p>
-        <p style='font-size: 0.9em; margin-top: 15px;'>
-            <b>© Tous droits réservés à Cherif le bg</b> 😎
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("""
+<div class="footer-bg">
+    <p>🇫🇷 République Française - Ministère de l'Entraînement Intensif 🇫🇷</p>
+    <p style="font-size: 0.8em;">© Tous droits réservés à <b>Cherif le bg</b> 😎 | Fait avec amour et du bon vin</p>
+</div>
+""", unsafe_allow_html=True)
