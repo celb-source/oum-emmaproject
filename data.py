@@ -1,7 +1,7 @@
 # data.py
-# Base de données exhaustive "Mission Naturalisation 7 Jours"
+# Base de données COMPLÈTE & EXHAUSTIVE pour Oumaima AKKAD
+# Version : "Mission Commando 7 Jours" + Module Expert
 # Mise à jour : Février 2026 (Gouvernement Lecornu)
-# Profil : Oumaima AKKAD (Mode, Culture, Diplômée)
 
 info_candidat = {
     "nom": "Oumaima AKKAD",
@@ -10,10 +10,10 @@ info_candidat = {
     "objectif": "Naturalisation par Décret"
 }
 
-# Programme intensif J-7 à J-1
+# --- PROGRAMME INTENSIF (J-7 à J-1) ---
 programme_7_jours = {
 
-    # --- JOUR 7 : IDENTITÉ, MOTIVATIONS & SYMBOLES (40 questions) ---
+    # --- JOUR 7 : IDENTITÉ, MOTIVATIONS & SYMBOLES (45 questions) ---
     "J-7": [
         # MOTIVATION & ANCRAGE
         {"q": "Pourquoi voulez-vous devenir Française ? (Question cruciale)", "r": "Je vis ici, mon travail et mes amis sont ici. Je partage les valeurs de la République et je veux pouvoir voter.", "type": "Orale", "cat": "Perso"},
@@ -62,7 +62,7 @@ programme_7_jours = {
         {"q": "Citez un monument hors de Paris.", "r": "Le Mont-Saint-Michel, le Château de Versailles.", "type": "Orale", "cat": "Culture"},
     ],
 
-    # --- JOUR 6 : VALEURS, LAÏCITÉ & SOCIÉTÉ (35 questions) ---
+    # --- JOUR 6 : VALEURS, LAÏCITÉ & SOCIÉTÉ (40 questions) ---
     "J-6": [
         # LAÏCITÉ (Le plus important)
         {"q": "Qu'est-ce que la Laïcité ?", "r": "C'est la neutralité de l'État et la liberté de conscience. L'État ne reconnaît ni ne finance aucun culte.", "type": "Orale", "cat": "Laïcité"},
@@ -106,7 +106,7 @@ programme_7_jours = {
         {"q": "Où sont jugés les délits ?", "r": "Au Tribunal Correctionnel.", "type": "Orale", "cat": "Justice"},
     ],
 
-    # --- JOUR 5 : HISTOIRE - DES ORIGINES À 1900 (30 questions) ---
+    # --- JOUR 5 : HISTOIRE - DES ORIGINES À 1900 (35 questions) ---
     "J-5": [
         # LES ORIGINES & ROIS
         {"q": "Qui sont les ancêtres des Français ?", "r": "Les Gaulois.", "type": "Orale", "cat": "Histoire"},
@@ -147,7 +147,7 @@ programme_7_jours = {
         {"q": "Qui a inventé le cinéma ?", "r": "Les Frères Lumière (en 1895).", "type": "Orale", "cat": "Culture"},
     ],
 
-    # --- JOUR 4 : HISTOIRE CONTEMPORAINE (XXe SIÈCLE) (35 questions) ---
+    # --- JOUR 4 : HISTOIRE CONTEMPORAINE (XXe SIÈCLE) (40 questions) ---
     "J-4": [
         # PREMIÈRE GUERRE MONDIALE (14-18)
         {"q": "Dates de la 1ère Guerre Mondiale ?", "options": ["1914-1918", "1939-1945", "1870-1871"], "correct": "1914-1918", "type": "QCM", "cat": "Histoire"},
@@ -330,5 +330,45 @@ programme_7_jours = {
     ]
 }
 
-def get_categories():
-    return ["Perso", "Symboles", "Mode", "Culture", "Histoire", "Géo", "Politique", "Laïcité", "Société"]
+# --- NOUVELLE SECTION : QUESTIONS DIFFICILES / EXPERT (30 Questions) ---
+questions_experts = [
+    # HISTOIRE & MÉMOIRE
+    {"q": "Qu'est-ce que l'Ordonnance de Villers-Cotterêts (1539) ?", "r": "François Ier impose le français comme langue officielle (au lieu du latin).", "type": "Orale", "cat": "Histoire Expert"},
+    {"q": "Qui est Missak Manouchian ?", "r": "Résistant étranger entré au Panthéon en 2024.", "type": "Orale", "cat": "Mémoire"},
+    {"q": "Qu'est-ce que le 'Siècle des Lumières' (XVIIIe) ?", "r": "Mouvement de philosophes (Voltaire, Rousseau) pour la raison et la liberté.", "type": "Orale", "cat": "Culture"},
+    {"q": "Qui est Olympe de Gouges ?", "r": "Pionnière du féminisme, guillotinée en 1793.", "type": "Orale", "cat": "Femmes"},
+    {"q": "En quelle année les femmes peuvent-elles travailler sans l'accord du mari ?", "r": "1965.", "type": "Orale", "cat": "Droits Femmes"},
+    {"q": "Qui est le 'Père de l'Europe' ?", "r": "Robert Schuman (ou Jean Monnet).", "type": "Orale", "cat": "Europe"},
+    {"q": "Qu'est-ce que l'affaire Dreyfus ?", "r": "Une crise politique majeure (1894) sur fond d'antisémitisme (J'accuse de Zola).", "type": "Orale", "cat": "Histoire"},
+
+    # INSTITUTIONS POINTUES
+    {"q": "Qu'est-ce que l'article 49.3 ?", "r": "Permet au gouvernement de passer une loi sans vote (sauf motion de censure).", "type": "Orale", "cat": "Politique"},
+    {"q": "Qu'est-ce que le Congrès ?", "r": "Réunion de l'Assemblée et du Sénat à Versailles (pour réviser la Constitution).", "type": "Orale", "cat": "Institutions"},
+    {"q": "Qui remplace le Président s'il meurt ?", "r": "Le Président du Sénat (Intérim).", "type": "Orale", "cat": "Institutions"},
+    {"q": "Où siège le Conseil Constitutionnel ?", "r": "Au Palais-Royal.", "type": "Orale", "cat": "Institutions"},
+    {"q": "Combien y a-t-il de membres au Conseil Constitutionnel ?", "r": "9 membres (les Sages).", "type": "Orale", "cat": "Institutions"},
+    {"q": "Qu'est-ce que la Navette Parlementaire ?", "r": "Le va-et-vient du texte de loi entre Assemblée et Sénat.", "type": "Orale", "cat": "Institutions"},
+    {"q": "Qui habite à l'Hôtel de Lassay ?", "r": "Le Président de l'Assemblée nationale.", "type": "Orale", "cat": "Institutions"},
+    {"q": "Quel est le rôle du Conseil d'État ?", "r": "Conseiller du gouvernement et juge administratif suprême.", "type": "Orale", "cat": "Justice"},
+
+    # GÉOGRAPHIE & ADMINISTRATION
+    {"q": "Différence entre DROM et COM ?", "r": "DROM : lois françaises s'appliquent direct. COM : lois adaptées.", "type": "Orale", "cat": "Géo Expert"},
+    {"q": "Combien de communes en France ?", "r": "Environ 35 000.", "type": "Orale", "cat": "Admin"},
+    {"q": "Qui est le Préfet ?", "r": "Le représentant de l'État (nommé), contrairement au Maire (élu).", "type": "Orale", "cat": "Institutions"},
+    {"q": "Où est le siège de l'OTAN ?", "r": "À Bruxelles.", "type": "Orale", "cat": "Géopolitique"},
+
+    # CULTURE & SYMBOLES VISUELS
+    {"q": "Qui est représentée sur les pièces de monnaie (La Semeuse) ?", "r": "Une figure allégorique qui sème les graines de la liberté/prospérité.", "type": "Orale", "cat": "Symboles"},
+    {"q": "Qu'est-ce que le Faisceau de Licteur (sur le passeport) ?", "r": "Un emblème représentant l'autorité et l'union de la République.", "type": "Orale", "cat": "Symboles"},
+    {"q": "Qu'est-ce que l'Académie Française ?", "r": "Institution qui protège la langue française (Les Immortels).", "type": "Orale", "cat": "Culture"},
+    {"q": "Qu'est-ce que le Prix Goncourt ?", "r": "Le plus grand prix littéraire français.", "type": "Orale", "cat": "Littérature"},
+    {"q": "Qui est Aimé Césaire ?", "r": "Poète et politique (Martinique), chantre de la Négritude.", "type": "Orale", "cat": "Littérature"},
+    {"q": "Quel est le grade le plus élevé de la Légion d'honneur ?", "r": "Grand-croix.", "type": "Orale", "cat": "Symboles"},
+
+    # ACTUALITÉ & SOCIÉTÉ 2026
+    {"q": "Qu'est-ce que l'IVG dans la Constitution ?", "r": "La liberté de recourir à l'IVG est garantie par la Constitution depuis 2024.", "type": "Orale", "cat": "Droit"},
+    {"q": "Qu'est-ce que le CAC 40 ?", "r": "L'indice des 40 plus grandes entreprises françaises en Bourse.", "type": "Orale", "cat": "Éco"},
+    {"q": "Qui est Robert Badinter (mort en 2024) ?", "r": "Ministre qui a aboli la peine de mort.", "type": "Orale", "cat": "Mémoire"},
+    {"q": "La France a-t-elle l'arme nucléaire ?", "r": "Oui (force de dissuasion).", "type": "Orale", "cat": "Défense"},
+    {"q": "Qui commande les armées ?", "r": "Le Président de la République.", "type": "Orale", "cat": "Institutions"},
+]
